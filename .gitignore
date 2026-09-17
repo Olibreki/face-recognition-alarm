@@ -1,0 +1,24 @@
+# Python virtual environment
+LVPython/
+__pycache__/
+*.pyc
+
+# Downloaded ONNX Runtime distribution
+pakkar/
+
+# Compiled binaries
+BioAlertBot
+capture_image
+face_recognition_alarm
+minimal_onnx
+live_feed_detect_face_C
+
+# Secrets
+.env
+
+# Personal / biometric data - never commit
+train/
+face_detect/*.jpg
+finetuned_model.onnx
+ref_embedding.txt
+image.jpg
