@@ -17,7 +17,7 @@ Camera --> Python capture pipeline --> HTTP --> C inference service --> Telegram
 ## Tech stack
 
 - **Python** - Flask, OpenCV (Haar cascade), MTCNN
-- **C** - ONNX Runtime C API, libmicrohttpd (HTTP server), libcurl (Telegram alerting), stb_image (image loading/resizing)
+- **C** - ONNX Runtime C API, libmicrohttpd (HTTP server), libcurl (Telegram alerting)
 - **Model** - ONNX face-embedding model (InsightFace buffalo_l), fine-tuned via last-layer transfer learning
 - **Platform** - Raspberry Pi
 
@@ -25,17 +25,10 @@ Camera --> Python capture pipeline --> HTTP --> C inference service --> Telegram
 
 ```
 .
-├── camera_live.py             # Camera capture / live feed
-├── stream.py, stream_pic.py   # Frame streaming utilities
-├── live_feed_detect_face.py   # Python face-detection pipeline
-├── live_feed_detect_face.c    # C entry point for live detection
-├── face_recognition_alarm.c   # Main C inference + alerting service
-├── BioAlertBot.c              # Telegram bot integration
-├── capture_image.c            # Image capture utility
-├── minimal_onnx.c             # Minimal ONNX Runtime usage example
-├── include/                   # ONNX Runtime C API headers
-├── stb_image.h, stb_image_resize.h  # Single-header image utilities
-└── face_detect/               # Detection output directory
+├── live_feed_detect_face.py   # Python capture + face-detection pipeline
+├── live_feed_detect_face.c    # C live-feed entry point
+├── face_recognition_alarm.c   # C inference service - ONNX matching + Telegram alerting
+└── include/                   # ONNX Runtime C API headers
 ```
 
 Build artifacts, the Python virtual environment, the ONNX Runtime binary distribution, and any captured/training photos or trained model weights are intentionally excluded from version control - see .gitignore.
@@ -59,10 +52,10 @@ pip install -r requirements.txt
 
 ### C build
 
-The C services link against the ONNX Runtime C API, libmicrohttpd, and libcurl. Download the ONNX Runtime Linux ARM64 release for your platform and point the build at its include/ and lib/ directories, then compile, e.g.:
+The C services link against the ONNX Runtime C API, libmicrohttpd, and libcurl. Download the ONNX Runtime Linux ARM64 release for your platform (the include/ folder in this repo already has the headers) and point the build at its lib/ directory, then compile, e.g.:
 
 ```bash
-gcc face_recognition_alarm.c -I<onnxruntime>/include -L<onnxruntime>/lib -lonnxruntime -lmicrohttpd -lcurl -o face_recognition_alarm
+gcc face_recognition_alarm.c -Iinclude -L<onnxruntime>/lib -lonnxruntime -lmicrohttpd -lcurl -o face_recognition_alarm
 ```
 
 ### Environment variables
