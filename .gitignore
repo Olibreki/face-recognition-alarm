@@ -7,10 +7,7 @@ __pycache__/
 pakkar/
 
 # Compiled binaries
-BioAlertBot
-capture_image
 face_recognition_alarm
-minimal_onnx
 live_feed_detect_face_C
 
 # Secrets
