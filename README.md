@@ -17,7 +17,7 @@ Camera --> Python capture pipeline --> HTTP --> C inference service --> Telegram
 ## Tech stack
 
 - **Python** - Flask, OpenCV (Haar cascade), MTCNN
-- **C** - ONNX Runtime C API, libmicrohttpd (HTTP server), libcurl (Telegram alerting)
+- **C** - ONNX Runtime C API, libmicrohttpd (HTTP server), libcurl (Telegram alerting), stb_image (image loading/resizing)
 - **Model** - ONNX face-embedding model (InsightFace buffalo_l), fine-tuned via last-layer transfer learning
 - **Platform** - Raspberry Pi
 
@@ -26,9 +26,11 @@ Camera --> Python capture pipeline --> HTTP --> C inference service --> Telegram
 ```
 .
 ├── live_feed_detect_face.py   # Python capture + face-detection pipeline
-├── live_feed_detect_face.c    # C live-feed entry point
+├── live_feed_detect_face.c    # C launcher for the Python pipeline
 ├── face_recognition_alarm.c   # C inference service - ONNX matching + Telegram alerting
-└── include/                   # ONNX Runtime C API headers
+├── include/                   # ONNX Runtime C API headers
+├── stb_image.h                # Single-header image loading
+└── stb_image_resize.h         # Single-header image resizing
 ```
 
 Build artifacts, the Python virtual environment, the ONNX Runtime binary distribution, and any captured/training photos or trained model weights are intentionally excluded from version control - see .gitignore.
@@ -52,10 +54,11 @@ pip install -r requirements.txt
 
 ### C build
 
-The C services link against the ONNX Runtime C API, libmicrohttpd, and libcurl. Download the ONNX Runtime Linux ARM64 release for your platform (the include/ folder in this repo already has the headers) and point the build at its lib/ directory, then compile, e.g.:
+The C services link against the ONNX Runtime C API, libmicrohttpd, and libcurl, and use the bundled stb_image headers. Download the ONNX Runtime Linux ARM64 release for your platform (the include/ folder in this repo already has the headers) and point the build at its lib/ directory, then compile, e.g.:
 
 ```bash
-gcc face_recognition_alarm.c -Iinclude -L<onnxruntime>/lib -lonnxruntime -lmicrohttpd -lcurl -o face_recognition_alarm
+gcc face_recognition_alarm.c -I. -Iinclude -L<onnxruntime>/lib -lonnxruntime -lmicrohttpd -lcurl -o face_recognition_alarm
+gcc live_feed_detect_face.c -o live_feed_detect_face
 ```
 
 ### Environment variables
